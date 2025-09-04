@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "processId": {
+      "type": "string",
+      "description": "Unique identifier for the process"
+    },
+    "processName": {
+      "type": "string",
+      "description": "Human-readable name for the process"
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/element"
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/flow"
+      }
+    }
+  },
+  "required": ["processId", "processName", "elements", "flows"],
+  "definitions": {
+    "element": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["start", "end", "task", "userTask", "serviceTask", "scriptTask", "exclusiveGateway", "parallelGateway", "subProcess", "callActivity"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "method": {"type": "string"},
+            "url": {"type": "string"},
+            "headers": {"type": "object"},
+            "body": {"type": "string"},
+            "calledElement": {"type": "string"},
+            "requires_mapping": {"type": "boolean"}
+          }
+        },
+        "subElements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/element"
+          }
+        },
+        "subFlows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flow"
+          }
+        }
+      },
+      "required": ["id", "type", "name"]
+    },
+    "flow": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "targetRef": {
+          "type": "string"
+        },
+        "condition": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "sourceRef", "targetRef"]
+    }
+  }
+}
