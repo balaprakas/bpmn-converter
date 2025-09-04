@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="loan_process" name="Loan Application Process" isExecutable="true">
+    <bpmn:startEvent id="start1" name="Customer applies"/>
+    <bpmn:userTask id="task1" name="Validate application"/>
+    <bpmn:callActivity id="call1" name="Risk Assessment" calledElement="risk_assessment"/>
+    <bpmn:userTask id="task2" name="Finalize loan"/>
+    <bpmn:endEvent id="end1" name="Loan approved or rejected"/>
+    <bpmn:sequenceFlow id="flow1" sourceRef="start1" targetRef="task1"/>
+    <bpmn:sequenceFlow id="flow2" sourceRef="task1" targetRef="call1"/>
+    <bpmn:sequenceFlow id="flow3" sourceRef="call1" targetRef="task2"/>
+    <bpmn:sequenceFlow id="flow4" sourceRef="task2" targetRef="end1"/>
+  </bpmn:process>
+</bpmn:definitions>
