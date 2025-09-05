@@ -19,6 +19,7 @@ public class BpmnGeneratorService {
         bpmn.append("xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" ");
         bpmn.append("xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" ");
         bpmn.append("xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" ");
+        bpmn.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
         bpmn.append("id=\"Definitions_1\" targetNamespace=\"http://bpmn.io/schema/bpmn\">\n");
         
         bpmn.append("  <bpmn:process id=\"").append(processIR.getProcessId()).append("\" ");
@@ -33,6 +34,9 @@ public class BpmnGeneratorService {
         }
         
         bpmn.append("  </bpmn:process>\n");
+        
+        generateBpmnDI(bpmn, processIR);
+        
         bpmn.append("</bpmn:definitions>");
         
         return bpmn.toString();
@@ -168,5 +172,73 @@ public class BpmnGeneratorService {
         } else {
             bpmn.append("/>\n");
         }
+    }
+
+    private void generateBpmnDI(StringBuilder bpmn, ProcessIR processIR) {
+        bpmn.append("  <bpmndi:BPMNDiagram id=\"BPMNDiagram_1\">\n");
+        bpmn.append("    <bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"").append(processIR.getProcessId()).append("\">\n");
+        
+        int x = 100;
+        int y = 100;
+        for (ProcessElement element : processIR.getElements()) {
+            generateBpmnShape(bpmn, element, x, y);
+            x += 150; // Move to the right for next element
+        }
+        
+        generateBpmnEdges(bpmn, processIR);
+        
+        bpmn.append("    </bpmndi:BPMNPlane>\n");
+        bpmn.append("  </bpmndi:BPMNDiagram>\n");
+    }
+
+    private void generateBpmnShape(StringBuilder bpmn, ProcessElement element, int x, int y) {
+        bpmn.append("      <bpmndi:BPMNShape id=\"").append(element.getId()).append("_di\" bpmnElement=\"").append(element.getId()).append("\">\n");
+        
+        int width, height;
+        switch (element.getType()) {
+            case "start":
+            case "end":
+                width = 36;
+                height = 36;
+                break;
+            case "exclusiveGateway":
+            case "parallelGateway":
+                width = 50;
+                height = 50;
+                break;
+            default: // tasks, callActivity, subProcess
+                width = 120;
+                height = 80;
+                break;
+        }
+        
+        bpmn.append("        <dc:Bounds x=\"").append(x).append("\" y=\"").append(y).append("\" ");
+        bpmn.append("width=\"").append(width).append("\" height=\"").append(height).append("\"/>\n");
+        bpmn.append("      </bpmndi:BPMNShape>\n");
+    }
+
+    private void generateBpmnEdges(StringBuilder bpmn, ProcessIR processIR) {
+        for (ProcessFlow flow : processIR.getFlows()) {
+            bpmn.append("      <bpmndi:BPMNEdge id=\"").append(flow.getId()).append("_di\" bpmnElement=\"").append(flow.getId()).append("\">\n");
+            
+            int sourceX = getElementX(flow.getSourceRef(), processIR.getElements());
+            int targetX = getElementX(flow.getTargetRef(), processIR.getElements());
+            int y = 140; // Center of elements vertically
+            
+            bpmn.append("        <di:waypoint x=\"").append(sourceX + 120).append("\" y=\"").append(y).append("\"/>\n");
+            bpmn.append("        <di:waypoint x=\"").append(targetX).append("\" y=\"").append(y).append("\"/>\n");
+            bpmn.append("      </bpmndi:BPMNEdge>\n");
+        }
+    }
+
+    private int getElementX(String elementId, List<ProcessElement> elements) {
+        int x = 100;
+        for (ProcessElement element : elements) {
+            if (element.getId().equals(elementId)) {
+                return x;
+            }
+            x += 150;
+        }
+        return x;
     }
 }
